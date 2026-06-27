@@ -1,4 +1,4 @@
-<html>
+ <html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -8,6 +8,18 @@
     <link rel="stylesheet" type="text/css" href="stylestore.css">
 </head>
 <body>
+    <script>
+        (function () {
+            try {
+                const user = JSON.parse(localStorage.getItem('vaporCurrentUser') || 'null');
+                if (!user) {
+                    window.location.replace('index.html?auth=required');
+                }
+            } catch (e) {
+                window.location.replace('index.html?auth=required');
+            }
+        })();
+    </script>
 
     <div class="store-container">
 
@@ -298,7 +310,6 @@
                 updateCartCountUI();
                 updateCartMenuUI();
                 renderGames(currentFilter, document.getElementById('searchInput')?.value||'');
-                alert('Checkout complete! Your games now appear in the library.');
             });
             initSiteWalletAndUser();
         }
