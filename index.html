@@ -127,6 +127,9 @@
 
     .modal button{width:100%;padding:16px;margin-top:15px;background:linear-gradient(90deg,#00ffff,#ff00ff);border:none;border-radius:10px;color:#000;font-weight:700;cursor:pointer;}
 
+    .switch-mode { cursor: default; user-select: none; }
+    .switch-mode strong { cursor: default; }
+
     /* In-page notification */
     .notification {
       position: fixed;
@@ -202,7 +205,12 @@
       { username: "shadowbyte", password: "1234", avatar: "https://i.pravatar.cc/150?u=shadow2" }
     ];
 
-    let currentUser = JSON.parse(localStorage.getItem('vaporCurrentUser')) || null;
+    let currentUser = null;
+    try {
+      currentUser = JSON.parse(localStorage.getItem('vaporCurrentUser')) || null;
+    } catch (e) {
+      currentUser = null;
+    }
 
     // Load saved login
     if (currentUser) {
@@ -225,6 +233,21 @@
     }, 2900);
 
     document.getElementById('bg-video').play().catch(() => {});
+
+    document.querySelectorAll('.nav-tab-icon').forEach(link => {
+      link.addEventListener('click', function (e) {
+        if (!currentUser) {
+          e.preventDefault();
+          showNotification('Please log in to access the site', 'error');
+          showModal();
+        }
+      });
+    });
+
+    const authRequired = new URLSearchParams(window.location.search).get('auth');
+    if (authRequired === 'required') {
+      showNotification('Please log in to access the site', 'error');
+    }
 
     let isLoginMode = true;
 
