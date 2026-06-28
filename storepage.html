@@ -195,7 +195,7 @@
         function renderGames(filter = 'all', search = '') {
             const grid = document.getElementById('gameGrid');
             const noResults = document.getElementById('noResults');
-            
+            const styles=['background:linear-gradient(135deg,#1f2937,#111827);','background:linear-gradient(135deg,#0f172a,#112e5f);','background:linear-gradient(135deg,#201f2f,#3d1b3d);','background:linear-gradient(135deg,#111827,#162a49);'];
             let filtered = games;
 
             // Filter by category
@@ -222,16 +222,16 @@
             }
 
             // Render games (ensure an image fallback when missing)
-            grid.innerHTML = filtered.map(game => {
+            grid.innerHTML = filtered.map((game,i) => {
                 const imgSrc = game.image || 'https://via.placeholder.com/400x250?text=No+Image';
-                // check cart
                 const cartList=JSON.parse(localStorage.getItem('vaporCart')||'[]');
-                const purchased = JSON.parse(localStorage.getItem('vaporLibrary')||'[]');
-                const owned = purchased.some(i=>i.id===game.id);
-                const inCart = cartList.some(i=>i.id===game.id);
-                const btnHTML = owned ? `<button class="in-cart owned" disabled><i class="fa-solid fa-check"></i></button>` : inCart ? `<button class="in-cart" data-id="${game.id}" disabled><i class="fa-solid fa-check"></i></button>` : `<button class="add-btn" data-id="${game.id}" onclick="addToCart(${game.id})">+ Add</button>`;
+                const purchased=JSON.parse(localStorage.getItem('vaporLibrary')||'[]');
+                const owned=purchased.some(i=>i.id===game.id);
+                const inCart=cartList.some(i=>i.id===game.id);
+                const style=styles[i%styles.length];
+                const btnHTML=owned?`<button class="in-cart owned" disabled><i class="fa-solid fa-check"></i></button>`: inCart?`<button class="in-cart" data-id="${game.id}" disabled><i class="fa-solid fa-check"></i></button>`:`<button class="add-btn" data-id="${game.id}" onclick="addToCart(${game.id})">+ Add</button>`;
                 return `
-                <div class="game-card">
+                <div class="game-card" style="${style}">
                     <div class="game-card-image">
                         <img src="${imgSrc}" alt="${game.title}" loading="lazy">
                     </div>
@@ -276,11 +276,6 @@
                 const menu = document.getElementById('cart-menu');
                 menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
             });
-            document.addEventListener('click', (e) => {
-                if (!document.getElementById('cart-menu').contains(e.target) && !document.getElementById('cart-btn').contains(e.target)) {
-                    document.getElementById('cart-menu').style.display = 'none';
-                }
-            });
             document.getElementById('cart-clear').addEventListener('click', function(){
                 localStorage.setItem('vaporCart','[]');
                 updateCartCountUI();
@@ -290,22 +285,6 @@
             document.getElementById('cart-checkout').addEventListener('click', function(){
                 const cart = JSON.parse(localStorage.getItem('vaporCart')||'[]');
                 if (!cart.length) return;
-                const library = JSON.parse(localStorage.getItem('vaporLibrary')||'[]');
-                cart.forEach(item => {
-                    if (!library.some(i => i.id === item.id)) {
-                        library.push({
-                            ...item,
-                            status:'installed',
-                            recent:true,
-                            playtime:'0.0',
-                            achievements:'0/0',
-                            topScore:'0',
-                            lastPlayed:'Today',
-                            tags:[item.category]
-                        });
-                    }
-                });
-                localStorage.setItem('vaporLibrary', JSON.stringify(library));
                 localStorage.setItem('vaporCart', '[]');
                 updateCartCountUI();
                 updateCartMenuUI();
@@ -315,8 +294,6 @@
         }
 
         function addToCart(gameId){
-            const purchased = JSON.parse(localStorage.getItem('vaporLibrary')||'[]');
-            if (purchased.some(i=>i.id===gameId)) return;
             const key='vaporCart';
             const cur = JSON.parse(localStorage.getItem(key)||'[]');
             if (cur.some(i=>i.id===gameId)) return updateCartCountUI();
@@ -401,7 +378,7 @@
                 if (!uname) {
                     uname = document.createElement('div');
                     uname.id = 'username-display';
-                    uname.style.fontWeight = '800'; uname.style.color = '#e6f6ff'; uname.style.marginLeft = '8px'; uname.style.display='none';
+                    uname.style.fontWeight = '800'; uname.style.color = '#e6f6ff'; uname.style.marginLeft = '8px'; uname.style.display='inline-block';
                     nav.appendChild(uname);
                 }
                 avatar.src = user.avatar || 'https://via.placeholder.com/40';
